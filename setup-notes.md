@@ -10,7 +10,7 @@
    
 5. Create folders `.github/workflows`
    
-6.  See `release.yml` in the workflows folder
+6.  Add `release.yml` in the workflows folder
 
 
 Iterating on a the `opa-sidecar-admission-controller` deployment as the first chart.  

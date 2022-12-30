@@ -52,7 +52,7 @@ selfSignedCertificate:
   clusterDomain: "cluster.local"
   namespaceSelectorKey: "opa-injection"
   namespaceSelectorValue: "enabled"
-  createSecret: true
+  createSecret: false
 
 certificateInitContainerImage:
   repository: twdps/certificate-init-container
