@@ -1,9 +1,9 @@
-{{- if .Values.selfSignedCertificate.create -}}
+{{- if .Values.certificate.selfSigned -}}
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  {{ include "opa-sidecar-admission-controller.serviceAccountName" . }}
+  name:  {{ include "opa-sidecar-admission-controller.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opa-sidecar-admission-controller.labels" . | nindent 4 }}
@@ -28,21 +28,22 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           args:
-            - "--common-name={{ .Values.selfSignedCertificate.commonName }}"
-            - "--organization={{ .Values.selfSignedCertificate.organization }}"
-            - "--organizational-unit={{ .Values.selfSignedCertificate.organizationalUnit }}"
-            - "--country={{ .Values.selfSignedCertificate.country }}"
-            - "--province={{ .Values.selfSignedCertificate.province }}"
-            - "--locality={{ .Values.selfSignedCertificate.locality }}"
-            - "--street-address={{ .Values.selfSignedCertificate.streetAddress }}"
-            - "--postal-code={{ .Values.selfSignedCertificate.postalCode }}"
-            - "--ca-duration={{ .Values.selfSignedCertificate.caDuration }}"
-            - "--additional-dnsnames={{ .Values.selfSignedCertificate.additionalDNSNames }}"
+            - "--common-name={{ .Values.certificate.commonName }}"
+            - "--organization={{ .Values.certificate.organization }}"
+            - "--organizational-unit={{ .Values.certificate.organizationalUnit }}"
+            - "--country={{ .Values.certificate.country }}"
+            - "--province={{ .Values.certificate.province }}"
+            - "--locality={{ .Values.certificate.locality }}"
+            - "--street-address={{ .Values.certificate.streetAddress }}"
+            - "--postal-code={{ .Values.certificate.postalCode }}"
+            - "--ca-duration={{ .Values.certificate.caDuration }}"
+            - "--additional-dnsnames={{ .Values.certificate.additionalDNSNames }}"
             - "--service-names={{ .Release.Name }}"
-            - "--hostname={{ .Values.selfSignedCertificate.hostname }}"
-            - "--subdomain={{ .Values.selfSignedCertificate.subdomain }}"
-            - "--cluster-domain={{ .Values.selfSignedCertificate.clusterDomain }}"
+            - "--hostname={{ .Values.certificate.hostname }}"
+            - "--subdomain={{ .Values.certificate.subdomain }}"
+            - "--cluster-domain={{ .Values.certificate.clusterDomain }}"
             - "--cert-dir=/etc/tls"
+            - "--create-secret={{ .Values.certificate.createSecret }}"
             - "--namespace=$(NAMESPACE)"
           volumeMounts:
             - name: tls
@@ -61,11 +62,10 @@ spec:
             - "--service-name={{ .Release.Name }}"
             - "--service-namespace=$(NAMESPACE)"
             - "--service-path=/v0/data/istio/inject"
-            - "--namespace-selector-key={{ .Values.selfSignedCertificate.namespaceSelectorKey }}"
-            - "--namespace-selector-value={{ .Values.selfSignedCertificate.namespaceSelectorValue }}"
+            - "--namespace-selector-key={{ .Values.certificate.namespaceSelectorKey }}"
+            - "--namespace-selector-value={{ .Values.certificate.namespaceSelectorValue }}"
             - "--cert-path=/etc/tls/tls.crt"
             - "--key-path=/etc/tls/tls.key"
-            - "--create-secret={{ .Values.selfSignedCertificate.createSecret }}"
           volumeMounts:
             - name: tls
               mountPath: /etc/tls
@@ -108,5 +108,5 @@ spec:
           emptyDir: {}
         - name: inject-policy
           configMap:
-            name: {{ include "opa-sidecar-admission-controller.serviceName" . }}-inject-template
+            name: {{ include "opa-sidecar-admission-controller.fullname" . }}-inject-template
 {{- end }}

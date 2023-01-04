@@ -1,0 +1,62 @@
+{{- if and (eq .Values.certificate.selfSigned false) (eq .Values.certificate.certManager false) }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  {{ include "opa-sidecar-admission-controller.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opa-sidecar-admission-controller.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "opa-sidecar-admission-controller.selectorLabels" . | nindent 6 }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "opa-sidecar-admission-controller.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "opa-sidecar-admission-controller.serviceAccountName" . }}
+      containers:
+        - name: opa
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          args:
+            - "run"
+            - "--server"
+            - "--tls-cert-file=/etc/tls/tls.crt"
+            - "--tls-private-key-file=/etc/tls/tls.key"
+            - "--addr=0.0.0.0:443"
+            - "/policies/inject.rego"
+          ports:
+            - containerPort: 443
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTPS
+              port: 443
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTPS
+              port: 443
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/tls
+            - name: inject-policy
+              readOnly: true
+              mountPath: /policies
+
+      volumes:
+        - name: tls
+          emptyDir: {}
+        - name: inject-policy
+          configMap:
+            name: {{ include "opa-sidecar-admission-controller.serviceName" . }}-inject-template
+
+{{- end }}

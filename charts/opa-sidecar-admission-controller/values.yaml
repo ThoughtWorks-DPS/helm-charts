@@ -35,8 +35,9 @@ image:
   tag: ""
 
 # if create=false you may comment out the rest of the values
-selfSignedCertificate:
-  create: true
+certificate:
+  selfSigned: true
+  certManager: false
   commonName: "SelfSignedCertificate"
   organization: "Self"
   organizationalUnit: "SelfUnit"
@@ -52,12 +53,14 @@ selfSignedCertificate:
   clusterDomain: "cluster.local"
   namespaceSelectorKey: "opa-injection"
   namespaceSelectorValue: "enabled"
-  createSecret: false
+  createSecret: true
+  caBundle: 
+  certKey:
 
 certificateInitContainerImage:
   repository: twdps/certificate-init-container
   imagePullPolicy: Always
-  tag: "0.2.4"
+  tag: "0.3.0"
 
 mutatingWebhookInitContainerImage:
   repository: twdps/mutatingwebhook-init-container

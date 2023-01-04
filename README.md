@@ -30,3 +30,20 @@ To uninstall the chart:
 ```bash
 $ helm uninstall opa-sidecar-admission-controller --namespace opa-system 
 ```
+
+
+
+
+methods
+
+1. self-signed
+
+the certificate-init-container generates the cert, the mutatingwebhook-init-container create the webhook and uses the self-signed cert
+
+2. cert-manager
+
+cert-manager is running and it manages the cert
+
+3. custom
+
+you have to provide both the crt and key info in values.yaml

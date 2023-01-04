@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "opa-sidecar-admission-controller.fullname" . }}
+  labels:
+    {{- include "opa-sidecar-admission-controller.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ["kubectl"]
+      args: ["get", "secrets", "-n", "{{ .Release.Namespace }}"]
+  restartPolicy: Never
