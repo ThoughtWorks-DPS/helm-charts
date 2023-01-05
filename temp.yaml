@@ -1,0 +1,243 @@
+---
+# Source: opa-sidecar-admission-controller/templates/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name:  opa-sidecar-admission-controller
+  namespace: opa-system
+  labels:
+    app: opa-sidecar-admission-controller
+    version: "0.47.4"
+    app.kubernetes.io/name: opa-sidecar-admission-controller
+    app.kubernetes.io/instance: opa-sidecar-admission-controller
+    app.kubernetes.io/version: "0.47.4"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: opa-sidecar-admission-controller-0.1.6
+---
+# Source: opa-sidecar-admission-controller/templates/injection-template-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: opa-sidecar-admission-controller-inject-template
+  namespace: 
+  
+data:
+  inject.rego: |
+    package istio
+
+    inject = {
+      "apiVersion": "admission.k8s.io/v1beta1",
+      "kind": "AdmissionReview",
+      "response": {
+        "allowed": true,
+        "patchType": "JSONPatch",
+        "patch": base64.encode(json.marshal(patch)),
+      },
+    }
+
+    patch = [{
+      "op": "add",
+      "path": "/spec/containers/-",
+      "value": opa_container,
+    }, {
+      "op": "add",
+      "path": "/spec/volumes/-",
+      "value": opa_config_volume,
+    }]
+
+    opa_container = {
+      "image": "openpolicyagent/opa:0.47.4-envoy-rootless", 
+      "name": "opa",
+      "args": [
+        "run",
+        "--server",
+        "--ignore=.*",
+        "--config-file=/config/conf.yaml",
+        "--addr=localhost:8181",
+        "--diagnostic-addr=0.0.0.0:8282"
+      ],
+      "readinessProbe": {
+        "httpGet": {
+          "path": "/health?plugins",
+          "scheme": "HTTP",
+          "port": 8282,
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 5,
+      },
+      "livenessProbe": {
+        "httpGet": {
+          "path": "/health?plugins",
+          "scheme": "HTTP",
+          "port": 8282,
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 5,
+      },
+      "volumeMounts": [{
+        "mountPath": "/config",
+        "name": "opa-istio-config",
+      }],
+      
+    }
+
+    opa_config_volume = {
+      "name": "opa-istio-config",
+      "configMap": {"name": "opa-sidecar-policy-server-credentials-configmap"},
+    }
+---
+# Source: opa-sidecar-admission-controller/templates/service-account.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: opa-sidecar-admission-controller-role
+rules:
+- apiGroups: ["", "apps", "admissionregistration.k8s.io", "rbac.authorization.k8s.io"]
+  resources: ["secrets", "deployments", "mutatingwebhookconfigurations"]
+  verbs: ["*"]
+---
+# Source: opa-sidecar-admission-controller/templates/service-account.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: opa-sidecar-admission-controller-role-binding
+subjects:
+- kind: ServiceAccount
+  name: opa-sidecar-admission-controller
+  namespace: opa-system
+roleRef:
+  kind: ClusterRole
+  name:  opa-sidecar-admission-controller-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: opa-sidecar-admission-controller/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa-sidecar-admission-controller
+  namespace: opa-system
+  labels:
+    app: opa-sidecar-admission-controller
+    version: "0.47.4"
+    app.kubernetes.io/name: opa-sidecar-admission-controller
+    app.kubernetes.io/instance: opa-sidecar-admission-controller
+    app.kubernetes.io/version: "0.47.4"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: opa-sidecar-admission-controller-0.1.6
+spec:
+  selector:
+    app.kubernetes.io/name: opa-sidecar-admission-controller
+    app.kubernetes.io/instance: opa-sidecar-admission-controller
+  ports:
+    - name: https
+      port: 443
+---
+# Source: opa-sidecar-admission-controller/templates/self-signed-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  opa-sidecar-admission-controller
+  namespace: opa-system
+  labels:
+    app: opa-sidecar-admission-controller
+    version: "0.47.4"
+    app.kubernetes.io/name: opa-sidecar-admission-controller
+    app.kubernetes.io/instance: opa-sidecar-admission-controller
+    app.kubernetes.io/version: "0.47.4"
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: opa-sidecar-admission-controller-0.1.6
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opa-sidecar-admission-controller
+      app.kubernetes.io/instance: opa-sidecar-admission-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opa-sidecar-admission-controller
+        app.kubernetes.io/instance: opa-sidecar-admission-controller
+    spec:
+      serviceAccountName: opa-sidecar-admission-controller
+      initContainers:
+        - name: certificate-init-container
+          image: "twdps/certificate-init-container:0.3.0"
+          imagePullPolicy: Always
+          args:
+            - "--common-name=SelfSignedCertificate"
+            - "--organization=Self"
+            - "--organizational-unit=SelfUnit"
+            - "--country=USA"
+            - "--province=Illinois"
+            - "--locality=Chicago"
+            - "--street-address=StreetAddress"
+            - "--postal-code=60601"
+            - "--ca-duration=3"
+            - "--additional-dnsnames=SelfSignedCertificate"
+            - "--service-names=opa-sidecar-admission-controller"
+            - "--hostname="
+            - "--subdomain="
+            - "--cluster-domain=cluster.local"
+            - "--cert-dir=/etc/tls"
+            - "--create-secret=true"
+            - "--namespace=opa-system"
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/tls
+        - name: mutatingwebhook-init-container
+          image: "twdps/mutatingwebhook-init-container:0.2.0"
+          imagePullPolicy: Always
+          args:
+            - "--webhook-name=opa-sidecar-admission-controller-webhook.twdps.io"
+            - "--object-meta-name=opa-sidecar-admission-controller-webhook"
+            - "--service-name=opa-sidecar-admission-controller"
+            - "--service-namespace=opa-system"
+            - "--service-path=/v0/data/istio/inject"
+            - "--namespace-selector-key=opa-injection"
+            - "--namespace-selector-value=enabled"
+            - "--cert-path=/etc/tls/tls.crt"
+            - "--key-path=/etc/tls/tls.key"
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/tls
+      containers:
+        - name: opa
+          image: "openpolicyagent/opa:0.47.4"
+          imagePullPolicy: Always
+          args:
+            - "run"
+            - "--server"
+            - "--tls-cert-file=/etc/tls/tls.crt"
+            - "--tls-private-key-file=/etc/tls/tls.key"
+            - "--addr=0.0.0.0:443"
+            - "/policies/inject.rego"
+          ports:
+            - containerPort: 443
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTPS
+              port: 443
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTPS
+              port: 443
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/tls
+            - name: inject-policy
+              readOnly: true
+              mountPath: /policies
+
+      volumes:
+        - name: tls
+          emptyDir: {}
+        - name: inject-policy
+          configMap:
+            name: opa-sidecar-admission-controller-inject-template

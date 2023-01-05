@@ -22,11 +22,6 @@ spec:
         - name: certificate-init-container
           image: "{{ .Values.certificateInitContainerImage.repository }}:{{ .Values.certificateInitContainerImage.tag }}"
           imagePullPolicy: {{ .Values.certificateInitContainerImage.imagePullPolicy }}
-          env:
-            - name: NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
           args:
             - "--common-name={{ .Values.certificate.commonName }}"
             - "--organization={{ .Values.certificate.organization }}"
@@ -44,23 +39,18 @@ spec:
             - "--cluster-domain={{ .Values.certificate.clusterDomain }}"
             - "--cert-dir=/etc/tls"
             - "--create-secret={{ .Values.certificate.createSecret }}"
-            - "--namespace=$(NAMESPACE)"
+            - "--namespace={{ .Release.Namespace }}"
           volumeMounts:
             - name: tls
               mountPath: /etc/tls
         - name: mutatingwebhook-init-container
           image: "{{ .Values.mutatingWebhookInitContainerImage.repository }}:{{ .Values.mutatingWebhookInitContainerImage.tag }}"
           imagePullPolicy: {{ .Values.mutatingWebhookInitContainerImage.imagePullPolicy }}
-          env:
-            - name: NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
           args:
             - "--webhook-name={{ .Release.Name }}-webhook.twdps.io"
             - "--object-meta-name={{ .Release.Name }}-webhook"
             - "--service-name={{ .Release.Name }}"
-            - "--service-namespace=$(NAMESPACE)"
+            - "--service-namespace={{ .Release.Namespace }}"
             - "--service-path=/v0/data/istio/inject"
             - "--namespace-selector-key={{ .Values.certificate.namespaceSelectorKey }}"
             - "--namespace-selector-value={{ .Values.certificate.namespaceSelectorValue }}"

@@ -38,6 +38,7 @@ image:
 certificate:
   selfSigned: true
   certManager: false
+
   commonName: "SelfSignedCertificate"
   organization: "Self"
   organizationalUnit: "SelfUnit"
@@ -51,9 +52,11 @@ certificate:
   hostname: ""
   subdomain: ""
   clusterDomain: "cluster.local"
+  createSecret: true
+
   namespaceSelectorKey: "opa-injection"
   namespaceSelectorValue: "enabled"
-  createSecret: true
+
   caBundle: 
   certKey:
 
