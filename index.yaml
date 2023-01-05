@@ -3,6 +3,21 @@ entries:
   opa-sidecar-admission-controller:
   - apiVersion: v2
     appVersion: 0.47.4
+    created: "2023-01-05T23:28:31.007692999Z"
+    description: Deploys mutatingwebhookconfiguration and an instance of openpolicyagent
+      acting as an admission controller to inject opa sidecars into all deployments
+      to namespaces with the defined annotation.
+    digest: 1b19759dd29cf93d1acc8b65d31d269ba78ba280733c77d628c2c052ff4c0e10
+    maintainers:
+    - name: ThoughtWorks-DPS
+      url: https://github.com/ThoughtWorks-DPS
+    name: opa-sidecar-admission-controller
+    type: application
+    urls:
+    - https://github.com/ThoughtWorks-DPS/helm-charts/releases/download/opa-sidecar-admission-controller-0.1.7/opa-sidecar-admission-controller-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
+    appVersion: 0.47.4
     created: "2022-12-30T21:36:38.845240514Z"
     description: Deploys mutatingwebhookconfiguration and an instance of openpolicyagent
       acting as an admission controller to inject opa sidecars into all deployments
@@ -46,4 +61,4 @@ entries:
     urls:
     - https://github.com/ThoughtWorks-DPS/helm-charts/releases/download/opa-sidecar-admission-controller-0.1.3/opa-sidecar-admission-controller-0.1.3.tgz
     version: 0.1.3
-generated: "2022-12-30T21:36:38.845254414Z"
+generated: "2023-01-05T23:28:31.007713201Z"
