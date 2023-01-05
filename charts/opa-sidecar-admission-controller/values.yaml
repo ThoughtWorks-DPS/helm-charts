@@ -38,7 +38,6 @@ image:
 certificate:
   selfSigned: true
   certManager: false
-
   commonName: "SelfSignedCertificate"
   organization: "Self"
   organizationalUnit: "SelfUnit"
@@ -53,12 +52,10 @@ certificate:
   subdomain: ""
   clusterDomain: "cluster.local"
   createSecret: true
-
   namespaceSelectorKey: "opa-injection"
   namespaceSelectorValue: "enabled"
-
-  caBundle: 
-  certKey:
+# caBundle:
+# certKey:
 
 certificateInitContainerImage:
   repository: twdps/certificate-init-container
