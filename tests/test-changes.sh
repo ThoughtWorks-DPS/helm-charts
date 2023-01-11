@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 # find all changed charts in the triggering commit
 ct list-changed > charts-to-test
