@@ -33,18 +33,21 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.5.0
 
-      # - name: Run chart-testing (install)
-      #   run: ct install --chart-dirs charts --exclude-deprecated --all
+      - name: Run chart-testing (install)
+        run: ct install --chart-dirs charts --exclude-deprecated --all
 
-      - name: run tests against changed charts
-        run: ./tests/test-changes.sh
+      # would like to substitute a custom, terragrunt based helm chart install integration tests
+      # but misunderstanding something about running bash scripts in a github action
+      # even a simple echo message script will fail so there must be a trick to running bash
+      # - name: run tests against changed charts
+      #   run: ./tests/test-changes.sh
 
-      # - name: set github user information
-      #   run: |
-      #     git config --global user.email "twdps.io@gmail.com"
-      #     git config --global user.name "twdpsio"
+      - name: set github user information
+        run: |
+          git config --global user.email "twdps.io@gmail.com"
+          git config --global user.name "twdpsio"
           
-      # - name: Run chart-releaser
-      #   uses: helm/chart-releaser-action@v1.4.1
-      #   env:
-      #     CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.4.1
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
