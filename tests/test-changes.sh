@@ -5,6 +5,7 @@ ct list-changed > charts-to-test
 
 while read chartpath; do
   chart=${chartpath##*/}
+  echo ${#chart}
   echo "testing $chart"
   cd tests
   cd $chart
@@ -16,3 +17,5 @@ while read chartpath; do
   # go test -v -timeout 20m
   # cd ../..
 done <charts-to-test
+
+#opa-sidecar-admission-controller
