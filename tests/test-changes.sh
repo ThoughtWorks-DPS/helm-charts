@@ -6,7 +6,8 @@ ct list-changed > charts-to-test
 while read chartpath; do
   chart=${chartpath##*/}
   echo "testing $chart"
-  cd tests && cd $chart
+  cd tests
+  cd $chart
   pwd
   cd ../..
   pwd
