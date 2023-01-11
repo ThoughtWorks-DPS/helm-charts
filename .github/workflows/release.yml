@@ -39,12 +39,12 @@ jobs:
       - name: run tests against changed charts
         run: bash tests/test-changes.sh
 
-      - name: set github user information
-        run: |
-          git config --global user.email "twdps.io@gmail.com"
-          git config --global user.name "twdpsio"
+      # - name: set github user information
+      #   run: |
+      #     git config --global user.email "twdps.io@gmail.com"
+      #     git config --global user.name "twdpsio"
           
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.4.1
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # - name: Run chart-releaser
+      #   uses: helm/chart-releaser-action@v1.4.1
+      #   env:
+      #     CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
