@@ -3,6 +3,12 @@
 # find all changed charts in the triggering commit
 ct list-changed > charts-to-test
 
+echo "charts to test"
+cat charts-to-test
+
+if [ ! -s $file ]; then
+  echo "no changed charts found"
+fi
 # while read chartpath; do
 #   chart=${chartpath##*/}
 #   echo ${#chart}
