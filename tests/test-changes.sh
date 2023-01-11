@@ -7,7 +7,9 @@ while read chartpath; do
   chart=${chartpath##*/}
   echo "testing $chart"
   pwd
-  cd tests
+  cd tests/$chart
+  pwd
+  cd ../..
   pwd
   # go mod init "github.com/ThoughtWorks-DPS/helm-charts"
   # go mod tidy
