@@ -37,7 +37,7 @@ jobs:
       #   run: ct install --chart-dirs charts --exclude-deprecated --all
 
       - name: run tests against changed charts
-        run: bash tests/test-changes.sh
+        run: ./tests/test-changes.sh
 
       # - name: set github user information
       #   run: |
