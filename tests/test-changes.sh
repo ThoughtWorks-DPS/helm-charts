@@ -6,7 +6,7 @@ ct list-changed > charts-to-test
 while read chartpath; do
   chart=${chartpath##*/}
   echo "testing $chart"
-  cd ./tests/$chart
+  cd tests/$chart
   go mod init "github.com/ThoughtWorks-DPS/helm-charts"
   go mod tidy
   go test -v -timeout 20m
