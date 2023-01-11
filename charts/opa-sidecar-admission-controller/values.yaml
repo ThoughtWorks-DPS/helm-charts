@@ -41,7 +41,7 @@ certificate:
   commonName: "SelfSignedCertificate"
   organization: "Self"
   organizationalUnit: "SelfUnit"
-  country: "USA"
+  country: "USA "
   province: "Illinois"
   locality: "Chicago"
   streetAddress: "StreetAddress"

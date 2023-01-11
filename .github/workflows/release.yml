@@ -33,8 +33,11 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.5.0
 
-      - name: Run chart-testing (install)
-        run: ct install --chart-dirs charts --exclude-deprecated --all
+      # - name: Run chart-testing (install)
+      #   run: ct install --chart-dirs charts --exclude-deprecated --all
+
+      - name: run tests against changed charts
+        run: bash tests/test-changes.sh
 
       - name: set github user information
         run: |

@@ -1,0 +1,22 @@
+{{- if .Values.certificate.selfSigned -}}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "opa-sidecar-admission-controller.fullname" . }}-pre-delete-hook
+  labels:
+    {{- include "opa-sidecar-admission-controller.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-delete
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "opa-sidecar-admission-controller.labels" . | nindent 4 }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: post-install-job
+        image: "alpine:3.3"
+        command: ["/bin/sleep","{{ default "10" .Values.sleepyTime }}"]
+{{- end }}
